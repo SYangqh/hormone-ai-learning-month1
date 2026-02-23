@@ -1,0 +1,13 @@
+.app {
+  text-align: center;
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
+.dashboard {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 30px auto;
+  max-width: 1100px;
+}
+.note { margin-top: 40px; text-align: left; max-width: 600px; margin: 40px auto; }
