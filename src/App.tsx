@@ -11,14 +11,18 @@ function App() {
   });
 
   const handleChange = (name: string, value: number) => {
-    setHormones(prev => ({ ...prev, [name]: value }));
+    if (name === 'reset') {
+      setHormones({ energy: 0.8, curiosity: 0.5, stress: 0.3 });
+      return;
+    }
+    setHormones((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
     <div className="app">
       <h1>人工激素系统 · 第1周可视化仪表盘</h1>
       <p>拖动滑块 = 改变激素浓度（向量） → 观察3D箭头如何“驱动”机器人行为</p>
-      
+
       <div className="dashboard">
         <VectorVisualizer hormones={hormones} />
         <HormoneSliders hormones={hormones} onChange={handleChange} />

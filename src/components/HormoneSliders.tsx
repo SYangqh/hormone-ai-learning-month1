@@ -1,4 +1,4 @@
-import { Slider, Typography, Box } from '@mui/material';
+import { Slider, Typography, Box, Button } from '@mui/material';
 
 interface Props {
   hormones: { energy: number; curiosity: number; stress: number };
@@ -21,6 +21,14 @@ export default function HormoneSliders({ hormones, onChange }: Props) {
           />
         </div>
       ))}
+      <Button
+        variant="outlined"
+        color="secondary"
+        onClick={() => onChange('reset', 0)}
+        sx={{ mt: 2 }}
+      >
+        Reset to Default
+      </Button>
     </Box>
   );
 }
