@@ -11,11 +11,19 @@ export default function VectorVisualizer({ hormones }: Props) {
   const curiosityVec = new THREE.Vector3(0, hormones.curiosity * 3, 0);
   const stressVec = new THREE.Vector3(0, 0, hormones.stress * 3);
   // 总动机向量 = energy + curiosity + stress
-  const totalVec = new THREE.Vector3(
-    hormones.energy * 3,
-    hormones.curiosity * 3,
-    hormones.stress * 3
-  );
+
+  const modMatrix = [
+    [2, 0, 0],
+    [0, 1, 0],
+    [0, 0, 0.5],
+  ];
+
+  const v = new THREE.Vector3(hormones.energy * 3, hormones.curiosity * 3, hormones.stress * 3);
+  const w_x = modMatrix[0][0] * v.x + modMatrix[0][1] * v.y + modMatrix[0][2] * v.z;
+  const w_y = modMatrix[1][0] * v.x + modMatrix[1][1] * v.y + modMatrix[1][2] * v.z;
+  const w_z = modMatrix[2][0] * v.x + modMatrix[2][1] * v.y + modMatrix[2][2] * v.z;
+
+  const transformed = new THREE.Vector3(w_x, w_y, w_z);
   return (
     <div style={{ width: '600px', height: '500px', border: '2px solid #333' }}>
       <Canvas camera={{ position: [5, 5, 5] }}>
@@ -48,7 +56,7 @@ export default function VectorVisualizer({ hormones }: Props) {
         <Text position={[0, 0, stressVec.z + 0.5]} fontSize={0.3} color="blue">
           Stress {hormones.stress.toFixed(2)}
         </Text>
-        <arrowHelper
+        {/* <arrowHelper
           args={[
             totalVec.clone().normalize(),
             new THREE.Vector3(),
@@ -57,14 +65,31 @@ export default function VectorVisualizer({ hormones }: Props) {
             0.2,
             0.1,
           ]}
+        /> */}
+        <arrowHelper
+          args={[
+            transformed.clone().normalize(),
+            new THREE.Vector3(),
+            transformed.length(),
+            'purple',
+            0.2,
+            0.1,
+          ]}
         />
         <Text
+          position={[transformed.x * 1.1, transformed.y * 1.1, transformed.z * 1.1]}
+          fontSize={0.35}
+          color="purple"
+        >
+          Modulated Motive
+        </Text>
+        {/* <Text
           position={[totalVec.x * 1.1, totalVec.y * 1.1, totalVec.z * 1.1]}
           fontSize={0.35}
           color="purple"
         >
           Total Motive {totalVec.length().toFixed(2)}
-        </Text>
+        </Text> */}
         <OrbitControls />
       </Canvas>
     </div>
