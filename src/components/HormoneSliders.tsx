@@ -14,7 +14,7 @@ export default function HormoneSliders({ hormones, onChange }: Props) {
           <Slider
             value={value}
             min={0}
-            max={1}
+            max={2}
             step={0.01}
             onChange={(_, newValue) => onChange(name, newValue as number)}
             valueLabelDisplay="auto"

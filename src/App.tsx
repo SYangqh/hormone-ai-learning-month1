@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import VectorVisualizer from './components/VectorVisualizer';
 import HormoneSliders from './components/HormoneSliders';
+import MatrixSliders from './components/MatrixSliders';
 import './App.css';
 
 function App() {
@@ -17,15 +18,41 @@ function App() {
     }
     setHormones((prev) => ({ ...prev, [name]: value }));
   };
+  // App.tsx 顶部加
+  const [matrix, setMatrix] = useState<number[][]>([
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+  ]);
 
+  const handleMatrixChange = (row: number, col: number, value: number) => {
+    setMatrix((prev) => {
+      const newM = prev.map((r) => [...r]);
+      newM[row][col] = value;
+      return newM;
+    });
+  };
+
+  const resetMatrix = () => {
+    setMatrix([
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+    ]);
+  };
   return (
     <div className="app">
       <h1>人工激素系统 · 第1周可视化仪表盘</h1>
       <p>拖动滑块 = 改变激素浓度（向量） → 观察3D箭头如何“驱动”机器人行为</p>
 
       <div className="dashboard">
-        <VectorVisualizer hormones={hormones} />
-        <HormoneSliders hormones={hormones} onChange={handleChange} />
+        <div className="dashboard">
+          <VectorVisualizer hormones={hormones} matrix={matrix} />
+          <div>
+            {/* <HormoneSliders hormones={hormones} onChange={handleChange} /> */}
+            <MatrixSliders matrix={matrix} onChange={handleMatrixChange} onReset={resetMatrix} />
+          </div>
+        </div>
       </div>
 
       <div className="note">

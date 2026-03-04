@@ -4,63 +4,21 @@ import * as THREE from 'three';
 
 interface Props {
   hormones: { energy: number; curiosity: number; stress: number };
+  matrix: number[][]; // 新增
 }
-
-export default function VectorVisualizer({ hormones }: Props) {
-  const energyVec = new THREE.Vector3(hormones.energy * 3, 0, 0);
-  const curiosityVec = new THREE.Vector3(0, hormones.curiosity * 3, 0);
-  const stressVec = new THREE.Vector3(0, 0, hormones.stress * 3);
-  // 总动机向量 = energy + curiosity + stress
-
-  // === Day1 演示：两个矩阵连续应用 ===
-
-  // const modMatrix = [
-  //   [2, 0, 0],
-  //   [0, 1, 0],
-  //   [0, 0, 0.5],
-  // ];
-
-  // const v = new THREE.Vector3(hormones.energy * 3, hormones.curiosity * 3, hormones.stress * 3);
-  // const w_x = modMatrix[0][0] * v.x + modMatrix[0][1] * v.y + modMatrix[0][2] * v.z;
-  // const w_y = modMatrix[1][0] * v.x + modMatrix[1][1] * v.y + modMatrix[1][2] * v.z;
-  // const w_z = modMatrix[2][0] * v.x + modMatrix[2][1] * v.y + modMatrix[2][2] * v.z;
-
-  // const transformed = new THREE.Vector3(w_x, w_y, w_z);
-
-  // === Day2 演示：两个矩阵连续应用 ===
-
-  // 矩阵A：压力抑制（把stress维度压缩到0.3倍，其他不变）
-  const matrixA = [
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 0.3],
-  ];
-
-  // 矩阵B：好奇放大（把curiosity维度放大2倍，其他不变）
-  const matrixB = [
-    [1, 0, 0],
-    [0, 2, 0],
-    [0, 0, 1],
-  ];
-
-  // 先计算中间向量 = A × v
-  const v = new THREE.Vector3(hormones.energy * 3, hormones.curiosity * 3, hormones.stress * 3);
-
-  const intermediate = new THREE.Vector3(
-    matrixA[0][0] * v.x + matrixA[0][1] * v.y + matrixA[0][2] * v.z,
-    matrixA[1][0] * v.x + matrixA[1][1] * v.y + matrixA[1][2] * v.z,
-    matrixA[2][0] * v.x + matrixA[2][1] * v.y + matrixA[2][2] * v.z
+export default function VectorVisualizer({ hormones, matrix }: Props) {
+  const scale = 3;
+  const v = new THREE.Vector3(
+    hormones.energy * scale,
+    hormones.curiosity * scale,
+    hormones.stress * scale
   );
 
-  // 再计算最终 = B × intermediate
-  const final = new THREE.Vector3(
-    matrixB[0][0] * intermediate.x +
-      matrixB[0][1] * intermediate.y +
-      matrixB[0][2] * intermediate.z,
-    matrixB[1][0] * intermediate.x +
-      matrixB[1][1] * intermediate.y +
-      matrixB[1][2] * intermediate.z,
-    matrixB[2][0] * intermediate.x + matrixB[2][1] * intermediate.y + matrixB[2][2] * intermediate.z
+  // 计算 M × v
+  const modulated = new THREE.Vector3(
+    matrix[0][0] * v.x + matrix[0][1] * v.y + matrix[0][2] * v.z,
+    matrix[1][0] * v.x + matrix[1][1] * v.y + matrix[1][2] * v.z,
+    matrix[2][0] * v.x + matrix[2][1] * v.y + matrix[2][2] * v.z
   );
 
   return (
@@ -69,31 +27,22 @@ export default function VectorVisualizer({ hormones }: Props) {
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
         <axesHelper args={[5]} /> {/* ← lowercase + no import needed */}
-        {/* energy vector (red) */}
-        <arrowHelper
-          args={[energyVec.clone().normalize(), new THREE.Vector3(), energyVec.length(), 'red']}
-        />
-        <Text position={[energyVec.x + 0.5, 0, 0]} fontSize={0.3} color="red">
-          Energy {hormones.energy.toFixed(2)}
-        </Text>
-        {/* curiosity (green) */}
         <arrowHelper
           args={[
-            curiosityVec.clone().normalize(),
+            modulated.clone().normalize(),
             new THREE.Vector3(),
-            curiosityVec.length(),
-            'lime',
+            modulated.length(),
+            'purple',
+            0.25,
+            0.12,
           ]}
         />
-        <Text position={[0, curiosityVec.y + 0.5, 0]} fontSize={0.3} color="lime">
-          Curiosity {hormones.curiosity.toFixed(2)}
-        </Text>
-        {/* stress (blue) */}
-        <arrowHelper
-          args={[stressVec.clone().normalize(), new THREE.Vector3(), stressVec.length(), 'blue']}
-        />
-        <Text position={[0, 0, stressVec.z + 0.5]} fontSize={0.3} color="blue">
-          Stress {hormones.stress.toFixed(2)}
+        <Text
+          position={[modulated.x * 1.1, modulated.y * 1.1, modulated.z * 1.1]}
+          fontSize={0.35}
+          color="purple"
+        >
+          Modulated Motive {modulated.length().toFixed(2)}
         </Text>
         {/* day1 */}
         {/* <arrowHelper
@@ -134,41 +83,6 @@ export default function VectorVisualizer({ hormones }: Props) {
         </Text>
          */}
         {/* // 画中间向量（黄色虚线） */}
-        <arrowHelper
-          args={[
-            intermediate.clone().normalize(),
-            new THREE.Vector3(),
-            intermediate.length(),
-            'yellow',
-            0.15,
-            0.08,
-          ]}
-        />
-        <Text
-          position={[intermediate.x * 1.1, intermediate.y * 1.1, intermediate.z * 1.1]}
-          fontSize={0.28}
-          color="yellow"
-        >
-          After A (Stress ↓)
-        </Text>
-        {/* // 画最终向量（紫色） */}
-        <arrowHelper
-          args={[
-            final.clone().normalize(),
-            new THREE.Vector3(),
-            final.length(),
-            'purple',
-            0.2,
-            0.1,
-          ]}
-        />
-        <Text
-          position={[final.x * 1.1, final.y * 1.1, final.z * 1.1]}
-          fontSize={0.35}
-          color="purple"
-        >
-          After A→B (Curiosity ↑)
-        </Text>
         <OrbitControls />
       </Canvas>
     </div>
